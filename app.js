@@ -5,3 +5,19 @@ function frequencyToNoteNumber(freq) {
 }
 
 console.log(frequencyToNoteNumber(440));
+
+let lowE = [
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E"
+];
