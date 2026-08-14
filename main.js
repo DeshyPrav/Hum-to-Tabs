@@ -40,3 +40,21 @@ let A = [
     "A"
 ];
 console.log(A[3]);
+
+let D = [
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+    "C",
+    "C#",
+    "D"
+];
+
+console.log(D[5]);
