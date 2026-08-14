@@ -23,3 +23,20 @@ let lowE = [
 ];
 
 console.log(lowE[3]);
+
+let A = [
+    "A",
+    "A#",
+    "B",
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A"
+];
+console.log(A[3]);
