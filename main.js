@@ -1,4 +1,4 @@
-console.log("HUM TO TAB FINAL TEST 123");
+console.log("HUM TO TAB - AUG 14");
 
 // Frequency to MIDI note number
 function frequencyToNoteNumber(freq) {
@@ -8,7 +8,7 @@ function frequencyToNoteNumber(freq) {
 console.log(frequencyToNoteNumber(440));
 
 
-// Guitar strings, frets 0–12
+// Guitar strings, frets 0-12
 
 let lowE = [
     "E", "F", "F#", "G", "G#", "A", "A#",
@@ -41,7 +41,7 @@ let highE = [
 ];
 
 
-// Put all strings into one guitar
+// Put all six strings into one guitar
 
 let guitar = {
     "Low E": lowE,
@@ -53,10 +53,10 @@ let guitar = {
 };
 
 
-// Test the guitar
+// Test: find G on all six strings
 
 console.log(guitar["Low E"][3]);
-console.log(guitar["A"][3]);
+console.log(guitar["A"][10]);
 console.log(guitar["D"][5]);
 console.log(guitar["G"][0]);
 console.log(guitar["B"][8]);
