@@ -1,4 +1,4 @@
-console.log("HUM TO TAB - AUG 14");
+console.log("HUM TO TAB");
 
 // Frequency to MIDI note number
 function frequencyToNoteNumber(freq) {
