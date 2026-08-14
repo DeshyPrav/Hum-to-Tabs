@@ -1,4 +1,4 @@
-console.log("app.js is running");
+console.log("THIS IS THE NEW APP.JS");
 
 function frequencyToNoteNumber(freq) {
     return 12 * Math.log2(freq / 440) + 69;
