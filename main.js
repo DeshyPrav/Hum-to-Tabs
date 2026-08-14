@@ -1,4 +1,4 @@
-console.log("Hum to Tab is running");
+console.log("HUM TO TAB FINAL TEST 123");
 
 // Frequency to MIDI note number
 function frequencyToNoteNumber(freq) {
