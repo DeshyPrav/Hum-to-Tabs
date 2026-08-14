@@ -23,3 +23,4 @@ let lowE = [
 ];
 
 console.log(lowE[3]);
+console.log("TEST");
