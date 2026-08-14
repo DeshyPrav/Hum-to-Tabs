@@ -21,3 +21,5 @@ let lowE = [
     "D#",
     "E"
 ];
+
+console.log(lowE[3]);
