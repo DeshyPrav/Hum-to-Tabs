@@ -1,4 +1,4 @@
-console.log("THIS IS THE NEW APP.JS");
+console.log("NEW VERSION");
 
 function frequencyToNoteNumber(freq) {
     return 12 * Math.log2(freq / 440) + 69;
