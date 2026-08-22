@@ -1,4 +1,4 @@
-console.log("HUM TO TAB - VERSION 6");
+console.log("HUM TO TAB - VERSION 7");
 
 // ========================================
 // 1. FREQUENCY → MIDI
