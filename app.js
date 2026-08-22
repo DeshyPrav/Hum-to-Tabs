@@ -166,6 +166,7 @@ let audioContext;
 let analyser;
 let microphone;
 let microphoneStream;
+let detecting = false;
 
 
 startButton.addEventListener("click", async function() {
@@ -195,6 +196,7 @@ startButton.addEventListener("click", async function() {
 
         console.log("MICROPHONE CONNECTED");
 
+        detecting = true;
         detectPitch();
 
     } catch (error) {
@@ -212,7 +214,12 @@ startButton.addEventListener("click", async function() {
 // 6. PITCH DETECTION
 // ========================================
 
+
 function detectPitch() {
+
+    if (!detecting) {
+        return;
+    }
 
     let buffer =
         new Float32Array(analyser.fftSize);
@@ -360,6 +367,8 @@ console.log("Microphone system ready.");
 
 stopButton.addEventListener("click", function() {
 
+    detecting = false;
+
     if (microphoneStream) {
 
         let tracks = microphoneStream.getTracks();
@@ -372,7 +381,12 @@ stopButton.addEventListener("click", function() {
 
     if (audioContext) {
         audioContext.close();
+        audioContext = null;
     }
+
+    microphoneStream = null;
+    analyser = null;
+    microphone = null;
 
     status.textContent = "Microphone off";
 
