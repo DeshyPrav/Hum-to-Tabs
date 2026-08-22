@@ -233,6 +233,10 @@ function detectPitch() {
 
         let note =
             midiToNoteName(midi);
+        
+        let positions = findPositions(note);
+
+        console.log("Guitar positions:", positions);
 
         noteDisplay.textContent =
             "Note: " + note;
