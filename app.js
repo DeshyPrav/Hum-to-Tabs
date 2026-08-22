@@ -425,7 +425,3 @@ stopButton.addEventListener("click", function() {
     console.log("MICROPHONE STOPPED");
 
 });
-
-    console.log("MICROPHONE STOPPED");
-
-});
