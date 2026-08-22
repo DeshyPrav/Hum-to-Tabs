@@ -162,16 +162,19 @@ let status = document.getElementById("status");
 let frequencyDisplay = document.getElementById("frequencyDisplay");
 let noteDisplay = document.getElementById("noteDisplay");
 
-let audioContext;
-let analyser;
-let microphone;
-let microphoneStream;
-let detecting = false;
-let animationFrameId = null;
+let audioContext = null;
+let analyser = null;
+let microphone = null;
+let microphoneStream = null;
 
+let detecting = false;
 
 
 startButton.addEventListener("click", async function() {
+
+    if (detecting) {
+        return;
+    }
 
     try {
 
@@ -193,20 +196,21 @@ startButton.addEventListener("click", async function() {
 
         microphone.connect(analyser);
 
+        detecting = true;
+
         status.textContent =
             "Microphone is working!";
 
         console.log("MICROPHONE CONNECTED");
 
-        detecting = true;
         detectPitch();
 
     } catch (error) {
 
+        console.log(error);
+
         status.textContent =
             "Microphone access denied.";
-
-        console.log(error);
 
     }
 
@@ -219,7 +223,7 @@ startButton.addEventListener("click", async function() {
 
 function detectPitch() {
 
-    if (!detecting) {
+    if (!detecting || !analyser || !audioContext) {
         return;
     }
 
@@ -246,24 +250,30 @@ function detectPitch() {
 
         let note =
             midiToNoteName(midi);
-        
-        let positions = findPositions(note);
 
-        console.log("Guitar positions:", positions);
-
-        noteDisplay.textContent =
-            "Note: " + note;
+        let positions =
+            findPositions(note);
 
         console.log(
             frequency.toFixed(2),
             "Hz →",
             note
         );
+
+        console.log(
+            "Guitar positions:",
+            positions
+        );
+
+        noteDisplay.textContent =
+            "Note: " + note;
     }
 
-    animationFrameId = requestAnimationFrame(detectPitch);
-}
+    if (detecting) {
+        requestAnimationFrame(detectPitch);
+    }
 
+}
 
 // ========================================
 // 7. AUTOCORRELATION PITCH DETECTOR
@@ -369,27 +379,24 @@ console.log("Microphone system ready.");
 
 stopButton.addEventListener("click", function() {
 
+    console.log("STOP BUTTON PRESSED");
+
     detecting = false;
 
-    if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+    if (microphoneStream) {
+
+        microphoneStream
+            .getTracks()
+            .forEach(function(track) {
+                track.stop();
+            });
+
+        microphoneStream = null;
     }
 
     if (microphone) {
         microphone.disconnect();
         microphone = null;
-    }
-
-    if (microphoneStream) {
-
-        let tracks = microphoneStream.getTracks();
-
-        for (let track of tracks) {
-            track.stop();
-        }
-
-        microphoneStream = null;
     }
 
     if (audioContext) {
@@ -399,13 +406,18 @@ stopButton.addEventListener("click", function() {
 
     analyser = null;
 
-    status.textContent = "Microphone off";
+    status.textContent =
+        "Microphone off";
 
     frequencyDisplay.textContent =
         "Frequency: -- Hz";
 
     noteDisplay.textContent =
         "Note: --";
+
+    console.log("MICROPHONE STOPPED");
+
+});
 
     console.log("MICROPHONE STOPPED");
 
