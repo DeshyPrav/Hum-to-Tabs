@@ -157,6 +157,7 @@ function choosePosition(positions, previousPosition) {
 // ========================================
 
 let startButton = document.getElementById("startButton");
+let stopButton = document.getElementById("stopButton");
 let status = document.getElementById("status");
 let frequencyDisplay = document.getElementById("frequencyDisplay");
 let noteDisplay = document.getElementById("noteDisplay");
@@ -164,13 +165,14 @@ let noteDisplay = document.getElementById("noteDisplay");
 let audioContext;
 let analyser;
 let microphone;
+let microphoneStream;
 
 
 startButton.addEventListener("click", async function() {
 
     try {
 
-        let stream =
+        microphoneStream =
             await navigator.mediaDevices.getUserMedia({
                 audio: true
             });
@@ -182,11 +184,14 @@ startButton.addEventListener("click", async function() {
         analyser.fftSize = 2048;
 
         microphone =
-            audioContext.createMediaStreamSource(stream);
+            audioContext.createMediaStreamSource(
+                microphoneStream
+            );
 
         microphone.connect(analyser);
 
-        status.textContent = "Microphone is working!";
+        status.textContent =
+            "Microphone is working!";
 
         console.log("MICROPHONE CONNECTED");
 
@@ -202,7 +207,6 @@ startButton.addEventListener("click", async function() {
     }
 
 });
-
 
 // ========================================
 // 6. PITCH DETECTION
@@ -353,3 +357,31 @@ function midiToNoteName(midi) {
 // ========================================
 
 console.log("Microphone system ready.");
+
+stopButton.addEventListener("click", function() {
+
+    if (microphoneStream) {
+
+        let tracks = microphoneStream.getTracks();
+
+        for (let track of tracks) {
+            track.stop();
+        }
+
+    }
+
+    if (audioContext) {
+        audioContext.close();
+    }
+
+    status.textContent = "Microphone off";
+
+    frequencyDisplay.textContent =
+        "Frequency: -- Hz";
+
+    noteDisplay.textContent =
+        "Note: --";
+
+    console.log("MICROPHONE STOPPED");
+
+});
