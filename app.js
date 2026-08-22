@@ -220,7 +220,6 @@ startButton.addEventListener("click", async function() {
 // 6. PITCH DETECTION
 // ========================================
 
-
 function detectPitch() {
 
     if (!detecting || !analyser || !audioContext) {
@@ -263,6 +262,14 @@ function detectPitch() {
         console.log(
             "Guitar positions:",
             positions
+        );
+
+        let chosenPosition =
+            choosePosition(positions, null);
+
+        console.log(
+            "Chosen position:",
+            chosenPosition
         );
 
         noteDisplay.textContent =
