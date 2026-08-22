@@ -167,6 +167,8 @@ let analyser;
 let microphone;
 let microphoneStream;
 let detecting = false;
+let animationFrameId = null;
+
 
 
 startButton.addEventListener("click", async function() {
@@ -259,7 +261,7 @@ function detectPitch() {
         );
     }
 
-    requestAnimationFrame(detectPitch);
+    animationFrameId = requestAnimationFrame(detectPitch);
 }
 
 
@@ -369,6 +371,16 @@ stopButton.addEventListener("click", function() {
 
     detecting = false;
 
+    if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    if (microphone) {
+        microphone.disconnect();
+        microphone = null;
+    }
+
     if (microphoneStream) {
 
         let tracks = microphoneStream.getTracks();
@@ -377,6 +389,7 @@ stopButton.addEventListener("click", function() {
             track.stop();
         }
 
+        microphoneStream = null;
     }
 
     if (audioContext) {
@@ -384,9 +397,7 @@ stopButton.addEventListener("click", function() {
         audioContext = null;
     }
 
-    microphoneStream = null;
     analyser = null;
-    microphone = null;
 
     status.textContent = "Microphone off";
 
