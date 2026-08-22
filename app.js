@@ -1,11 +1,14 @@
-console.log("HUM TO TAB - VERSION 7");
+console.log("HUM TO TAB - VERSION 8");
+
 
 // ========================================
 // 1. FREQUENCY → MIDI
 // ========================================
 
 function frequencyToNoteNumber(freq) {
+
     return 12 * Math.log2(freq / 440) + 69;
+
 }
 
 console.log(frequencyToNoteNumber(440));
@@ -84,12 +87,8 @@ function findPositions(note) {
     }
 
     return positions;
+
 }
-
-
-// Test G
-
-console.log(findPositions("G"));
 
 
 // ========================================
@@ -99,8 +98,11 @@ console.log(findPositions("G"));
 function choosePosition(positions, previousPosition) {
 
     if (positions.length === 0) {
+
         return null;
+
     }
+
 
     // First note:
     // choose the lowest fret
@@ -120,6 +122,7 @@ function choosePosition(positions, previousPosition) {
         }
 
         return bestPosition;
+
     }
 
 
@@ -129,19 +132,24 @@ function choosePosition(positions, previousPosition) {
 
     let bestPosition = positions[0];
 
-    let bestDistance = Math.abs(
-        positions[0].fret - previousPosition.fret
-    );
+    let bestDistance =
+        Math.abs(
+            positions[0].fret -
+            previousPosition.fret
+        );
 
     for (let position of positions) {
 
-        let distance = Math.abs(
-            position.fret - previousPosition.fret
-        );
+        let distance =
+            Math.abs(
+                position.fret -
+                previousPosition.fret
+            );
 
         if (distance < bestDistance) {
 
             bestDistance = distance;
+
             bestPosition = position;
 
         }
@@ -149,93 +157,174 @@ function choosePosition(positions, previousPosition) {
     }
 
     return bestPosition;
+
 }
 
 
 // ========================================
-// 5. MICROPHONE
+// 5. PAGE ELEMENTS
 // ========================================
 
-let startButton = document.getElementById("startButton");
-let stopButton = document.getElementById("stopButton");
-let status = document.getElementById("status");
-let frequencyDisplay = document.getElementById("frequencyDisplay");
-let noteDisplay = document.getElementById("noteDisplay");
+let startButton =
+    document.getElementById("startButton");
+
+let stopButton =
+    document.getElementById("stopButton");
+
+let captureButton =
+    document.getElementById("captureButton");
+
+let clearButton =
+    document.getElementById("clearButton");
+
+let status =
+    document.getElementById("status");
+
+let frequencyDisplay =
+    document.getElementById("frequencyDisplay");
+
+let noteDisplay =
+    document.getElementById("noteDisplay");
+
+let melodyDisplay =
+    document.getElementById("melodyDisplay");
+
+let tabOutput =
+    document.getElementById("tabOutput");
+
+
+// ========================================
+// 6. MICROPHONE VARIABLES
+// ========================================
 
 let audioContext = null;
+
 let analyser = null;
+
 let microphone = null;
+
 let microphoneStream = null;
 
 let detecting = false;
 
 
-startButton.addEventListener("click", async function() {
+// ========================================
+// 7. MELODY STORAGE
+// ========================================
 
-    if (detecting) {
-        return;
-    }
+let melody = [];
 
-    try {
+let melodyPositions = [];
 
-        microphoneStream =
-            await navigator.mediaDevices.getUserMedia({
-                audio: true
-            });
+let previousPosition = null;
 
-        audioContext = new AudioContext();
-
-        analyser = audioContext.createAnalyser();
-
-        analyser.fftSize = 2048;
-
-        microphone =
-            audioContext.createMediaStreamSource(
-                microphoneStream
-            );
-
-        microphone.connect(analyser);
-
-        detecting = true;
-
-        status.textContent =
-            "Microphone is working!";
-
-        console.log("MICROPHONE CONNECTED");
-
-        detectPitch();
-
-    } catch (error) {
-
-        console.log(error);
-
-        status.textContent =
-            "Microphone access denied.";
-
-    }
-
-});
 
 // ========================================
-// 6. PITCH DETECTION
+// 8. START MICROPHONE
+// ========================================
+
+startButton.addEventListener(
+    "click",
+    async function() {
+
+        if (detecting) {
+
+            return;
+
+        }
+
+        try {
+
+            microphoneStream =
+                await navigator.mediaDevices
+                .getUserMedia({
+                    audio: true
+                });
+
+
+            audioContext =
+                new AudioContext();
+
+
+            analyser =
+                audioContext.createAnalyser();
+
+
+            analyser.fftSize = 2048;
+
+
+            microphone =
+                audioContext
+                .createMediaStreamSource(
+                    microphoneStream
+                );
+
+
+            microphone.connect(analyser);
+
+
+            detecting = true;
+
+
+            status.textContent =
+                "Microphone is working!";
+
+
+            console.log(
+                "MICROPHONE CONNECTED"
+            );
+
+
+            detectPitch();
+
+
+        } catch (error) {
+
+            console.log(error);
+
+            status.textContent =
+                "Microphone access denied.";
+
+        }
+
+    }
+);
+
+
+// ========================================
+// 9. PITCH DETECTION
 // ========================================
 
 function detectPitch() {
 
-    if (!detecting || !analyser || !audioContext) {
+    if (
+        !detecting ||
+        !analyser ||
+        !audioContext
+    ) {
+
         return;
+
     }
 
-    let buffer =
-        new Float32Array(analyser.fftSize);
 
-    analyser.getFloatTimeDomainData(buffer);
+    let buffer =
+        new Float32Array(
+            analyser.fftSize
+        );
+
+
+    analyser.getFloatTimeDomainData(
+        buffer
+    );
+
 
     let frequency =
         autoCorrelate(
             buffer,
             audioContext.sampleRate
         );
+
 
     if (frequency !== -1) {
 
@@ -244,14 +333,24 @@ function detectPitch() {
             frequency.toFixed(2) +
             " Hz";
 
+
         let midi =
-            frequencyToNoteNumber(frequency);
+            frequencyToNoteNumber(
+                frequency
+            );
+
 
         let note =
             midiToNoteName(midi);
 
+
         let positions =
             findPositions(note);
+
+
+        noteDisplay.textContent =
+            "Note: " + note;
+
 
         console.log(
             frequency.toFixed(2),
@@ -259,49 +358,300 @@ function detectPitch() {
             note
         );
 
+
         console.log(
             "Guitar positions:",
             positions
         );
 
-        let chosenPosition =
-            choosePosition(positions, null);
-
-        console.log(
-            "Chosen position:",
-            chosenPosition
-        );
-
-        noteDisplay.textContent =
-            "Note: " + note;
     }
 
+
     if (detecting) {
-        requestAnimationFrame(detectPitch);
+
+        requestAnimationFrame(
+            detectPitch
+        );
+
     }
 
 }
 
+
 // ========================================
-// 7. AUTOCORRELATION PITCH DETECTOR
+// 10. CAPTURE NOTE
 // ========================================
 
-function autoCorrelate(buffer, sampleRate) {
+captureButton.addEventListener(
+    "click",
+    function() {
+
+        let currentNote =
+            noteDisplay.textContent
+            .replace("Note: ", "");
+
+
+        if (
+            currentNote === "--" ||
+            currentNote === ""
+        ) {
+
+            console.log(
+                "No note detected."
+            );
+
+            return;
+
+        }
+
+
+        let positions =
+            findPositions(
+                currentNote
+            );
+
+
+        let chosenPosition =
+            choosePosition(
+                positions,
+                previousPosition
+            );
+
+
+        if (chosenPosition === null) {
+
+            return;
+
+        }
+
+
+        melody.push(currentNote);
+
+        melodyPositions.push(
+            chosenPosition
+        );
+
+
+        previousPosition =
+            chosenPosition;
+
+
+        updateMelodyDisplay();
+
+
+        console.log(
+            "CAPTURED:",
+            currentNote
+        );
+
+
+        console.log(
+            "POSITION:",
+            chosenPosition
+        );
+
+    }
+);
+
+
+// ========================================
+// 11. DISPLAY CAPTURED MELODY
+// ========================================
+
+function updateMelodyDisplay() {
+
+    if (melody.length === 0) {
+
+        melodyDisplay.textContent =
+            "No notes captured yet.";
+
+        return;
+
+    }
+
+
+    melodyDisplay.textContent =
+        melody.join(" → ");
+
+
+    updatePositionDisplay();
+
+}
+
+
+// ========================================
+// 12. DISPLAY GUITAR POSITIONS
+// ========================================
+
+function updatePositionDisplay() {
+
+    let output = "";
+
+
+    for (
+        let i = 0;
+        i < melodyPositions.length;
+        i++
+    ) {
+
+        let position =
+            melodyPositions[i];
+
+
+        output +=
+            melody[i] +
+            " = " +
+            position.string +
+            " string, fret " +
+            position.fret +
+            "\n";
+
+    }
+
+
+    tabOutput.textContent =
+        output;
+
+}
+
+
+// ========================================
+// 13. CLEAR MELODY
+// ========================================
+
+clearButton.addEventListener(
+    "click",
+    function() {
+
+        melody = [];
+
+        melodyPositions = [];
+
+        previousPosition = null;
+
+
+        melodyDisplay.textContent =
+            "No notes captured yet.";
+
+
+        tabOutput.textContent =
+            "";
+
+
+        console.log(
+            "MELODY CLEARED"
+        );
+
+    }
+);
+
+
+// ========================================
+// 14. STOP MICROPHONE
+// ========================================
+
+stopButton.addEventListener(
+    "click",
+    function() {
+
+        console.log(
+            "STOP BUTTON PRESSED"
+        );
+
+
+        detecting = false;
+
+
+        if (microphoneStream) {
+
+            microphoneStream
+                .getTracks()
+                .forEach(
+                    function(track) {
+
+                        track.stop();
+
+                    }
+                );
+
+            microphoneStream = null;
+
+        }
+
+
+        if (microphone) {
+
+            microphone.disconnect();
+
+            microphone = null;
+
+        }
+
+
+        if (audioContext) {
+
+            audioContext.close();
+
+            audioContext = null;
+
+        }
+
+
+        analyser = null;
+
+
+        status.textContent =
+            "Microphone off";
+
+
+        frequencyDisplay.textContent =
+            "Frequency: -- Hz";
+
+
+        noteDisplay.textContent =
+            "Note: --";
+
+
+        console.log(
+            "MICROPHONE STOPPED"
+        );
+
+    }
+);
+
+
+// ========================================
+// 15. AUTOCORRELATION
+// ========================================
+
+function autoCorrelate(
+    buffer,
+    sampleRate
+) {
 
     let SIZE = buffer.length;
 
     let rms = 0;
 
-    for (let i = 0; i < SIZE; i++) {
 
-        rms += buffer[i] * buffer[i];
+    for (
+        let i = 0;
+        i < SIZE;
+        i++
+    ) {
+
+        rms +=
+            buffer[i] *
+            buffer[i];
 
     }
 
-    rms = Math.sqrt(rms / SIZE);
 
+    rms =
+        Math.sqrt(
+            rms / SIZE
+        );
 
-    // Ignore very quiet sounds
 
     if (rms < 0.01) {
 
@@ -311,7 +661,9 @@ function autoCorrelate(buffer, sampleRate) {
 
 
     let bestOffset = -1;
+
     let bestCorrelation = 0;
+
 
     for (
         let offset = 20;
@@ -320,6 +672,7 @@ function autoCorrelate(buffer, sampleRate) {
     ) {
 
         let correlation = 0;
+
 
         for (
             let i = 0;
@@ -333,15 +686,21 @@ function autoCorrelate(buffer, sampleRate) {
 
         }
 
-        correlation /= SIZE / 2;
+
+        correlation /=
+            SIZE / 2;
 
 
-        if (correlation > bestCorrelation) {
+        if (
+            correlation >
+            bestCorrelation
+        ) {
 
             bestCorrelation =
                 correlation;
 
-            bestOffset = offset;
+            bestOffset =
+                offset;
 
         }
 
@@ -356,11 +715,12 @@ function autoCorrelate(buffer, sampleRate) {
 
 
     return sampleRate / bestOffset;
+
 }
 
 
 // ========================================
-// 8. MIDI → NOTE NAME
+// 16. MIDI → NOTE NAME
 // ========================================
 
 function midiToNoteName(midi) {
@@ -371,10 +731,13 @@ function midiToNoteName(midi) {
         "G#", "A", "A#", "B"
     ];
 
+
     let noteIndex =
         Math.round(midi) % 12;
 
+
     return noteNames[noteIndex];
+
 }
 
 
@@ -382,46 +745,6 @@ function midiToNoteName(midi) {
 // END
 // ========================================
 
-console.log("Microphone system ready.");
-
-stopButton.addEventListener("click", function() {
-
-    console.log("STOP BUTTON PRESSED");
-
-    detecting = false;
-
-    if (microphoneStream) {
-
-        microphoneStream
-            .getTracks()
-            .forEach(function(track) {
-                track.stop();
-            });
-
-        microphoneStream = null;
-    }
-
-    if (microphone) {
-        microphone.disconnect();
-        microphone = null;
-    }
-
-    if (audioContext) {
-        audioContext.close();
-        audioContext = null;
-    }
-
-    analyser = null;
-
-    status.textContent =
-        "Microphone off";
-
-    frequencyDisplay.textContent =
-        "Frequency: -- Hz";
-
-    noteDisplay.textContent =
-        "Note: --";
-    
-    console.log("MICROPHONE STOPPED");
-
-});
+console.log(
+    "Hum-to-Tab Version 8 ready."
+);
