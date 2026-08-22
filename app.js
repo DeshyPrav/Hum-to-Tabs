@@ -421,7 +421,6 @@ stopButton.addEventListener("click", function() {
 
     noteDisplay.textContent =
         "Note: --";
-
     console.log("MICROPHONE STOPPED");
 
 });
